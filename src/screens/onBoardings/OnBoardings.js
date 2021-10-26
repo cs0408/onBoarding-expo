@@ -1,5 +1,12 @@
-import React from "react";
-import { View, Text, StyleSheet, Animated, Image } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Animated,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 // constatnts
 import { images, theme } from "../../constants";
 const { onBoarding1, onBoarding2, onBoarding3 } = images;
@@ -25,8 +32,20 @@ const screensData = [
 
 // main component
 const OnBoardings = () => {
+  // state for button
+  const [completed, setCompleted] = useState(false);
   // this for dots
   const scrollX = new Animated.Value(0);
+  // useEffect for button only --
+  useEffect(() => {
+    // to check if user finished acrolling onboarding pages
+    scrollX.addListener(({ Value }) => {
+      if (Math.floor(Value / SIZES.width) === screensData.length - 1) {
+        setCompleted(true);
+      }
+    });
+    return () => scrollX.removeListener();
+  }, []);
   // render items
   const renderContent = () => {
     return (
@@ -60,6 +79,7 @@ const OnBoardings = () => {
                 style={{ height: "100%", width: "100%" }}
               />
             </View>
+
             {/* heading and description */}
             <View
               style={{
@@ -94,6 +114,33 @@ const OnBoardings = () => {
                 {item.description}
               </Text>
             </View>
+
+            {/* skip button */}
+            <TouchableOpacity
+              onPress={() => {}}
+              style={{
+                position: "absolute",
+                backgroundColor: COLORS.blue,
+                bottom: 10,
+                right: 0,
+                borderTopLeftRadius: 30,
+                borderBottomLeftRadius: 30,
+                height: 60,
+                width: 150,
+                justifyContent: "center",
+                paddingLeft: 20,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: SIZES.body1,
+                  fontWeight: "bold",
+                  color: COLORS.white,
+                }}
+              >
+                {completed ? "Let's Go" : "Skip"}
+              </Text>
+            </TouchableOpacity>
           </View>
         ))}
       </Animated.ScrollView>

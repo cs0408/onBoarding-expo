@@ -25,6 +25,8 @@ const screensData = [
 
 // main component
 const OnBoardings = () => {
+  // this for dots
+  const scrollX = new Animated.Value(0);
   // render items
   const renderContent = () => {
     return (
@@ -34,6 +36,13 @@ const OnBoardings = () => {
         scrollEnabled
         snapToAlignment="center"
         showsHorizontalScrollIndicator={false}
+        // for dots
+        decelerationRate={0}
+        scrollEventThrottle={16}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+          { useNativeDriver: false }
+        )}
       >
         {screensData.map((item, index) => (
           <View key={index} style={{ width: SIZES.width }}>
@@ -55,7 +64,7 @@ const OnBoardings = () => {
             <View
               style={{
                 position: "absolute",
-                bottom: "10%",
+                bottom: "15%",
                 alignSelf: "center",
                 left: 40,
                 right: 40,
@@ -91,10 +100,62 @@ const OnBoardings = () => {
     );
   };
 
+  // render Dots
+  const renderDots = () => {
+    // dots position
+    const dotsPosition = Animated.divide(scrollX, SIZES.width);
+    return (
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {screensData.map((item, index) => {
+          const opacity = dotsPosition.interpolate({
+            inputRange: [index - 1, index, index + 1],
+            outputRange: [0.3, 1, 0.3],
+            extrapolate: "clamp",
+          });
+
+          const dotSize = dotsPosition.interpolate({
+            inputRange: [index - 1, index, index + 1],
+            outputRange: [SIZES.base, 17, SIZES.base],
+            extrapolate: "clamp",
+          });
+
+          return (
+            <Animated.View
+              key={`dot-${index}`}
+              style={{
+                borderRadius: SIZES.radius,
+                backgroundColor: COLORS.blue,
+                marginHorizontal: 5,
+                width: dotSize,
+                height: dotSize,
+              }}
+              opacity={opacity}
+            ></Animated.View>
+          );
+        })}
+      </View>
+    );
+  };
+
   // main return function
   return (
     <View style={styles.container}>
       <View>{renderContent()}</View>
+
+      <View
+        style={{
+          position: "absolute",
+          bottom: SIZES.height > 700 ? "10%" : "5%",
+        }}
+      >
+        {renderDots()}
+      </View>
     </View>
   );
 };
